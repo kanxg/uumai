@@ -1,0 +1,167 @@
+<div class="pageWidth container">
+	<div class="detail_search row">
+     <!--    <div class="col-md-4">
+            <p class="logo mini_logo"><span>uumai</span> 悠悠买</p>
+        </div> -->
+        <div class="col-md-2">
+            <div class="dropdown ">
+                 
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="搜一搜" ng-model="searchWords" ng-keypress="enterSearchWord($event)">
+                <span class="input-group-btn">
+                    <button class="btn btn-primary" type="search" ng-click="searchGoods()">uu一下</button>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+         
+        <!-- filter && view port -->
+        <div class="col-md-7">
+			<div class="form-inline">
+				<ul class="filterUl">
+					<li><label class="form_label">商城过滤:</label></li>
+					<li ng-repeat="shop in shopList" class="icon" ng-click="switchShop(shop.name,shop.class)"><div ng-class="shop.class"></div></li>
+					<li>&nbsp;&nbsp;&nbsp;&nbsp;<div class="btn btn-default btn-xs" ng-click="switchShop(1,1,1)">全选</div>&nbsp;&nbsp;&nbsp;&nbsp;<div class="btn btn-default btn-xs"  ng-click="switchShop(0,0,0)">反选</div></li>
+				</ul>
+			</div>
+           
+        </div>
+		<div class="col-md-5">
+		 <div class="form-inline  alignRight">
+                <label class="form_label">视图切换：</label>
+                <div class="iconbtn-group">
+                    <a class="btn icon-btn" ng-click="showGoods('list')" ng-class="setView('list')"><span class="glyphicon glyphicon-align-justify"></span></a>
+                    <a class="btn icon-btn" ng-click="showGoods('block')" ng-class="setView('block')"><span class="glyphicon glyphicon-th"></span></a>
+                </div>
+            </div>
+		</div>
+    </div>
+	<div class="row">
+		<div class="border" class="col-md-12" ></div>
+		<div id="typePanel" class="collapse col-md-12" >
+		 <ul class="filterUl">
+		 <li ng-repeat="cate in cateList"><input type="checkbox" ng-click="switchCate(cate.key,cate.class)"/><font ng-bind="cate.key+'['+cate.doc_count+']'"></font></li>
+		 </ul>
+		</div>
+		<div type="button" id="panelBtn" class="col-md-12 {{typePanelClass}}" data-toggle="collapse"  data-target="#typePanel" ng-click="switchPanel()">
+		</div>
+	</div>
+	<!-- ng-show="shopShow"-->
+	<div class="row">
+		<!-- sort buttons -->
+        <div class="col-md-5">
+            <input type="hidden" ng-model="predicate" ng-init="predicate='category_quanzhong'" >
+            <div class="btn-group">
+                <button class="btn btn-default" ng-class="setSelectedClass(btn.type)" ng-repeat="btn in goodsOrder" ng-click="resetOrder(btn.type)" ng-bind="btn.name"></button>
+            </div>
+        </div> 
+		<div class="col-md-7 alignRight">
+			<div  class="form-inline">
+				<label class="form_label">高级过滤：</label>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" ng-model="highFilter" ng-change="changeFilter()"> 包括第三方商家
+                    </label>
+                </div>
+				<div class="checkbox">
+                    <label>
+                        <input type="checkbox" ng-model="lowFilter" ng-change="changeFilter()"> 排除缺货及预订
+                    </label>
+                </div>
+			</div>
+		</div>	     
+	</div>
+	
+    <div class="row">
+        <br/>
+     <div class="col-md-2"><div class="form-inline alignLeft" ng-init="currentPage=0;total=0;" ng-bind="'第'+currentPage+'页 ,共'+total+'条'"></div></div>
+    </div>
+    <!-- goods Block -->
+    <div class="goodList row" ng-show="showBlock">
+        <div class="col-sm-6 col-md-4 col-lg-3" ng-repeat="list in goodBlocks.items">
+            <div class="thumbnail">
+                <a href="{{list.url}}" target="_blank">
+                    <img ng-src="{{list.bigimgsrc}}" alt="" class="carousel-inner img-thumbnail" style="height: 220px;">
+                </a>
+                <div class="caption">
+                    <p class="listGoodDescrib">
+                        <a href="{{list.url}}" target="_blank" ng-bind="list.title"></a>
+                    </p>
+					<p>
+						<font ng-bind="list.price | currency:'￥'" class="goods_price"></font><a ng-href="{{getDetailId(list.pid,list.website,list.ziying)}}" target="_blank" class="viewHistory">查看历史</a>
+						<font ng-class="{'1':'green right','0':'black right'}[list.instock]" ng-bind="{'1':'现货','-1':'无货'}[list.instock]"></font>
+					</p>
+					<section class="grayDescrib">
+                        <p class="listSales">评论数<span ng-bind="{{list.customerreview | limitTo:5}}+'条'"></span></p>
+						<p class="right"><span style="margin-left:10px;" title="{{websiteLogoTitle[list.website]}}" class="websiteLogoB" ng-class="websiteLogoBP[list.website]"></span></p>
+						<p class="right" ng-bind="{'1':'自营  --','-1':'第三方 --'}[list.ziying]"></p>
+                    </section>
+					<!--section class="right">更新时间：
+					<font ng-bind="showUpdate(list.updatetime)"></font>
+					</section-->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- good List -->
+    <div class="goodList row" ng-show="showList">
+        <table class="table table-striped table-hover line-link table-responsive" id="goodList">
+            <thead>
+            <!--    <th>商城</th>-->
+                <th></th>    <!--图片-->
+                <th>商品名称</th>
+                <th>价格</th>
+                <th>走势图</th>
+				<th>商城</th>
+                <th>库存</th>
+                <th>货源</th>
+                <th>评论数</th>
+                <th>价格变化时间</th> 
+            </thead>
+            <tbody>
+                <tr ng-repeat="list in goodBlocks.items">
+                 <!--    <td ng-bind="list.logo" class="logoColor"></td> -->
+                    <td>
+                       <a ng-href="{{list.url}}" target="_blank">
+                            <img ng-src="{{list.imgsrc}}" alt="" style="height:30px;">
+                       </a> 
+                    </td>
+                    <td><a ng-href="{{list.url}}"  target="_blank" ng-bind="list.title| limitTo:45"></a></td>
+                    <td><font ng-bind="list.price | currency:'￥'" class="priceColor"></font></td>
+                    <td><a ng-href="{{getDetailId(list.pid,list.website,list.ziying)}}" target="_blank" class="viewHistory">查看历史</a></td>
+                    <td><span title="{{websiteLogoTitle[list.website]}}" class="websiteLogoB" ng-class="websiteLogoBP[list.website]"></span></td>
+					<td ng-class="{'1':'green','0':'black'}[list.instock]" ng-bind="{'1':'现货','-1':'无货'}[list.instock]"></td>
+                    <td ng-bind="{'1':'自营','-1':'第三方'}[list.ziying]"></td>
+                    <td ng-bind="{{list.customerreview | limitTo:5}}+'条'"></td>
+                    <td ng-bind="showUpdate(list.updatetime)"></td>  
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="well" ng-show="showFeedBack">
+        <h2 class="text-center">没有结果?，点击<a ng-href="/feedback/{{searchWords}}" target="_blank">提交反馈</a></h2>
+    </div>
+    <!-- paging -->
+    <div class="paging">
+        <paging
+            page="currentPage" 
+            page-size="pageSize" 
+            total="total"
+            adjacent="{{adjacent}}"
+            dots="{{dots}}"
+            scroll-top="{{scrollTop}}" 
+            hide-if-empty="{{hideIfEmpty}}"
+            ul-class="{{ulClass}}"
+            active-class="{{activeClass}}"
+            disabled-class="{{disabledClass}}"
+            show-prev-next="{{showPrevNext}}"
+            paging-action="DoCtrlPagingAct(page, pageSize)">
+        </paging>   
+    </div>
+</div>
